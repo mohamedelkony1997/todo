@@ -2,26 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:todo/translation/myLocal.dart';
+import 'package:todo/views/HomeView.dart';
 import 'package:todo/views/LoginView.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
-  runApp(const MyApp());
-    WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-DeviceOrientation.portraitUp,
-DeviceOrientation.portraitDown
-
-  ]);
+void main() async {
+  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  await Hive.openBox("TODO");
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-  return GetMaterialApp(
+    return GetMaterialApp(
       builder: (context, child) => ResponsiveWrapper.builder(
         BouncingScrollWrapper.builder(context, child!),
         maxWidth: 1200,
@@ -38,8 +37,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       locale: Get.deviceLocale,
       translations: myLocal(),
-      home:LoginView() ,
+      home: HomeView(),
     );
   }
 }
-
