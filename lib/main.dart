@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:todo/Models/TaskModel.dart';
 import 'package:todo/translation/myLocal.dart';
 import 'package:todo/views/HomeView.dart';
-import 'package:todo/views/LoginView.dart';
 import 'package:flutter/services.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() async {
   runApp(MyApp());
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
+  final appDocDir = await getApplicationDocumentsDirectory();
+  Hive.init(appDocDir.path);
+  Hive.registerAdapter(TaskAdapter());
   await Hive.openBox("TODO");
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);

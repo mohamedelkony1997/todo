@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
-
+import 'package:hive/hive.dart';
+import 'package:todo/Models/TaskModel.dart';
 import 'drawer.dart';
 
 class HomeView extends StatelessWidget {
@@ -10,11 +11,12 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: false,
       key: _scaffoldKey,
       endDrawer: ClipRRect(
-      borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20), topLeft: Radius.circular(20)),child: MySideMenu()),
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20), topLeft: Radius.circular(20)),
+          child: MySideMenu()),
       floatingActionButton: CircleAvatar(
         child: IconButton(
           icon: Icon(Icons.add, size: 35, color: Colors.white),
@@ -54,7 +56,13 @@ class HomeView extends StatelessWidget {
                   ),
                 ),
                 Spacer(),
-                IconButton(onPressed: () {}, icon: Icon(Icons.menu)),
+                IconButton(
+                    onPressed: () async {
+                      var box = Hive.box("TODO");
+                      var data = box.get("task");
+                      print(data.time);
+                    },
+                    icon: Icon(Icons.menu)),
               ],
             ),
             SizedBox(

@@ -1,35 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:hive/hive.dart';
+part 'TaskModel.g.dart';
+@HiveType(typeId: 1)
 class Task {
-  final String id;
-  String title;
-  Color color;
-
-  String description;
-  DateTime date;
-
+  @HiveField(0)
+  String? title;
+  @HiveField(1)
+  int? color;
+  @HiveField(2)
+  String? description;
+  @HiveField(3)
+  String? date;
+  @HiveField(4)
+  String? time;
   Task({
-    required this.id,
     required this.title,
     required this.color,
-   
-    required this.description,
+    required this.time,
     required this.date,
+    required this.description,
   });
 }
-
-// @HiveType(typeId: 0)
-// class Todo extends HiveObject {
-//   @HiveField(0)
-//   String? name;
-
-//   @HiveField(1)
-//   DateTime? date;
-
-//   @HiveField(2)
-//   TimeOfDay ? time;
-//   @HiveField(3)
-//   String ? description;
-//   @HiveField(4)
-//   Color ? color;

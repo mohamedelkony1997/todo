@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:hive/hive.dart';
 import '../Models/TaskModel.dart';
 
 class MySideMenu extends StatefulWidget {
@@ -19,10 +19,9 @@ class _MySideMenuState extends State<MySideMenu> {
   TextEditingController Timeinputfrom = TextEditingController();
   TextEditingController description = TextEditingController();
   DateTime? _dateTime = DateTime.now();
+  List<Task> tasks = [];
+  int? selectcolor;
 
-  Color? selectcolor;
-  List<Map<String, dynamic>> tasks = [];
-  final _toDoLists = Hive.box("TODO");
   TimeOfDay? _selectedTime;
 
   @override
@@ -89,7 +88,7 @@ class _MySideMenuState extends State<MySideMenu> {
                     ),
                     onPressed: () {
                       setState(() {
-                        selectcolor = color;
+                        selectcolor = color.value;
                       });
                     },
                   );
@@ -305,7 +304,9 @@ class _MySideMenuState extends State<MySideMenu> {
                     // elevation: MaterialStateProperty.all(3),
                     shadowColor: MaterialStateProperty.all(Colors.transparent),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    CraeteTask();
+                  },
                   child: Padding(
                     padding: const EdgeInsets.only(
                       top: 10,
@@ -329,7 +330,27 @@ class _MySideMenuState extends State<MySideMenu> {
     );
   }
 
-  Future<void> createTask(Map<String, dynamic> newTask) async {
-    _toDoLists.add(newTask);
+  void CraeteTask()async {
+    final format = DateFormat.Hm(); //"6:00 AM"
+
+    Box box =await Hive.box("TODO");
+
+   List<Task> myList = box.get('task', defaultValue: []);
+
+  // Create an instance of the object and add it to the list
+
+    var newObject = Task(
+        color: selectcolor,
+        description: description.text,
+        title: taskName.text,
+        date: dateinput.text,
+        time: Timeinputfrom.text);
+  myList.add(newObject);
+
+  // Save the updated list back to the box
+  box.put('task', myList);
+
+  // Close the Hive box
+  await box.close();
   }
 }
