@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 part 'TaskModel.g.dart';
+
 @HiveType(typeId: 1)
 class Task {
   @HiveField(0)
-  String? title;
+  final String? title;
   @HiveField(1)
-  int? color;
+  final int? color;
   @HiveField(2)
-  String? description;
+  final String? description;
   @HiveField(3)
-  String? date;
+  final String? date;
   @HiveField(4)
-  String? time;
+  final String? time;
   Task({
     required this.title,
     required this.color,
@@ -21,4 +22,21 @@ class Task {
     required this.date,
     required this.description,
   });
+ Task.fromJson(Map<String, dynamic> json)
+      : title = json['title'],
+        time = json['time'],
+        color = json['color'],
+        date = json['date'],
+        description = json['description']  ;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'time': time,
+      'color': color,
+      'date': date,
+      'description': description,
+    };
+  }
+
 }
