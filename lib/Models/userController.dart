@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +9,7 @@ import 'package:todo/views/HomeView.dart';
 import 'User.dart';
 
 class UserController {
+  
   static const String baseUrl =
       'https://phpstack-561490-3524079.cloudwaysapps.com/api-start-point/public/api/auth/login';
 
@@ -35,6 +37,7 @@ class UserController {
           fontSize: 16.0);
       SharedPreferences preferences = await SharedPreferences.getInstance();
       preferences.setString("token", extractedlogin["data"]["token"]);
+        
       print( extractedlogin["data"]["token"]);
     } else {
       Fluttertoast.showToast(

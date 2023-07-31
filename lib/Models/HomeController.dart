@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'TaskModel.dart';
 
 class TaskController extends GetxController {
@@ -10,10 +11,10 @@ class TaskController extends GetxController {
   final RxList<Task> tasks = <Task>[].obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-      Hive.openBox<Task>('TODO');
-    _taskBox = Hive.box<Task>('TODO');
+    await Hive.openBox<Task>('TODO');
+    _taskBox = await Hive.box<Task>('TODO');
     tasks.assignAll(_taskBox.values.toList());
     ever(tasks, (_) {
       _taskBox.putAll(Map.fromIterable(
@@ -28,13 +29,23 @@ class TaskController extends GetxController {
     tasks.add(task);
   }
 
-  void removeTask(Task task) {
-    tasks.remove(task);
+  void deleteTask(int index) async {
+    tasks.removeAt(index);
+    await _taskBox.delete(index); 
+    update();
   }
 
   @override
   void onClose() {
     _taskBox.close();
     super.onClose();
+  }
+
+  void logOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('token');
+
+    // Navigate to the login page
+    Get.offNamed('/login');
   }
 }

@@ -13,6 +13,7 @@ import '../Models/TaskModel.dart';
 class MySideMenu extends StatefulWidget {
   String title;
   int color;
+  int index;
   String descrip;
   String date;
   String time;
@@ -20,6 +21,7 @@ class MySideMenu extends StatefulWidget {
   MySideMenu(
       {Key? key,
       required this.color,
+      required this.index,
       required this.time,
       required this.date,
       required this.descrip,
@@ -390,14 +392,7 @@ class _MySideMenuState extends State<MySideMenu> {
                                 MaterialStateProperty.all(Colors.transparent),
                           ),
                           onPressed: () {
-                            taskController.removeTask(Task(
-                                title: widget.title,
-                                color: widget.color,
-                                time: widget.time,
-                                date: widget.date,
-                                description: widget.descrip));
-
-                            Navigator.of(context).pop();
+                            taskController.deleteTask(widget.index);
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(

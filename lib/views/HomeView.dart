@@ -22,6 +22,7 @@ class _HomeViewState extends State<HomeView> {
   final TaskController taskController = Get.put(TaskController());
 
   Map data = {
+    "index": 0,
     "title": '',
     "time": "",
     "date": '',
@@ -41,6 +42,7 @@ class _HomeViewState extends State<HomeView> {
           child: MySideMenu(
             time: data['time'],
             color: data['color'],
+            index: data['index'],
             date: data['date'],
             descrip: data['description'],
             title: data['title'],
@@ -87,7 +89,11 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
                 Spacer(),
-                IconButton(onPressed: () async {}, icon: Icon(Icons.menu)),
+                IconButton(
+                    onPressed: () async {
+                      taskController.logOut();
+                    },
+                    icon: Icon(Icons.logout)),
               ],
             ),
             SizedBox(
