@@ -10,16 +10,33 @@ import 'package:timezone/timezone.dart' as tz;
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
-
 Future<void> initializeNotifications() async {
-  final AndroidInitializationSettings initializationSettingsAndroid =
+  const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-
   final InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
-
+      android: initializationSettingsAndroid,
+      iOS: IOSInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      ));
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  // Request permission for local notifications on Android
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.requestPermission();
+
+  // Request permission for local notifications on iOS
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>()
+      ?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 }
 
 class TaskController extends GetxController {
@@ -29,7 +46,7 @@ class TaskController extends GetxController {
     super.onInit();
     final box = await Hive.openBox('TODO');
     tasks.assignAll(box.values.map((e) => e as Task).toList());
-
+    initializeNotifications();
     // Schedule notifications for all tasks when the app starts
     scheduleNotifications();
   }
@@ -109,14 +126,6 @@ class TaskController extends GetxController {
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
-     flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin>()
-      ?.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
   }
 
   void cancelNotification(Task task) {

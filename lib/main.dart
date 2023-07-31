@@ -18,10 +18,11 @@ bool updateMode = false;
 void main() async {
   runApp(MyApp());
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeNotifications();
+  
   final appDocDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocDir.path);
   Hive.registerAdapter(TaskAdapter());
+  await initializeNotifications();
 
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
