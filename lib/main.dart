@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,11 +11,14 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:todo/views/LoginView.dart';
 
+import 'Models/HomeController.dart';
+
 bool updateMode = false;
 
 void main() async {
   runApp(MyApp());
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeNotifications();
   final appDocDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocDir.path);
   Hive.registerAdapter(TaskAdapter());

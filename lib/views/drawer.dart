@@ -7,10 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive/hive.dart';
 import 'package:todo/main.dart';
+import 'package:uuid/uuid.dart';
 import '../Models/HomeController.dart';
 import '../Models/TaskModel.dart';
 
 class MySideMenu extends StatefulWidget {
+  String id;
   String title;
   int color;
   int index;
@@ -21,6 +23,7 @@ class MySideMenu extends StatefulWidget {
   MySideMenu(
       {Key? key,
       required this.color,
+      required this.id,
       required this.index,
       required this.time,
       required this.date,
@@ -57,6 +60,7 @@ class _MySideMenuState extends State<MySideMenu> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.index);
     return Drawer(
       backgroundColor: Color(0xfff8fbfe),
       child: Padding(
@@ -337,6 +341,7 @@ class _MySideMenuState extends State<MySideMenu> {
                         ),
                         onPressed: () {
                           taskController.addTask(Task(
+                              id: Uuid().v4(),
                               color: selectcolor,
                               description: description.text,
                               title: taskName.text,
@@ -392,7 +397,17 @@ class _MySideMenuState extends State<MySideMenu> {
                                 MaterialStateProperty.all(Colors.transparent),
                           ),
                           onPressed: () {
-                            taskController.deleteTask(widget.index);
+                            taskController.deleteTask(
+                                Task(
+                                    title: widget.title,
+                                    color: widget.color,
+                                    id: widget.id,
+                                    time: widget.time,
+                                    date: widget.date,
+                                    description: widget.descrip),
+                                widget.index);
+                            print("widget.id");
+                            Navigator.of(context).pop();
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(
@@ -449,7 +464,16 @@ class _MySideMenuState extends State<MySideMenu> {
                             shadowColor:
                                 MaterialStateProperty.all(Colors.transparent),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            taskController.updateTask(Task(
+                                title: taskName.text,
+                                color: selectcolor,
+                                id: widget.id,
+                                time: Timeinputfrom.text,
+                                date: dateinput.text,
+                                description: description.text));
+                                Navigator.of(context).pop();
+                          },
                           child: Padding(
                             padding: const EdgeInsets.only(
                               top: 10,

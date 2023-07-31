@@ -22,7 +22,8 @@ class _HomeViewState extends State<HomeView> {
   final TaskController taskController = Get.put(TaskController());
 
   Map data = {
-    "index": 0,
+    "index":0,
+    "id": '',
     "title": '',
     "time": "",
     "date": '',
@@ -40,9 +41,10 @@ class _HomeViewState extends State<HomeView> {
           borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20), topLeft: Radius.circular(20)),
           child: MySideMenu(
+            id: data["id"],
+            index: data["index"],
             time: data['time'],
             color: data['color'],
-            index: data['index'],
             date: data['date'],
             descrip: data['description'],
             title: data['title'],
@@ -110,8 +112,11 @@ class _HomeViewState extends State<HomeView> {
                         Color color = Color(task.color!);
                         return InkWell(
                           onTap: () async {
+                            print(task.id);
                             setState(() {
                               data['title'] = task.title;
+                              data['id'] = task.id;
+                              data['index'] = index;
                               data['time'] = task.time;
                               data['description'] = task.description;
                               data['color'] = task.color;
@@ -121,25 +126,6 @@ class _HomeViewState extends State<HomeView> {
                             (updateMode == true)
                                 ? _scaffoldKey.currentState!.openEndDrawer()
                                 : null;
-                            SharedPreferences preferences =
-                                await SharedPreferences.getInstance();
-                            preferences.setString(
-                              "time",
-                              task.time.toString(),
-                            );
-                            preferences.setString(
-                              "title",
-                              task.title.toString(),
-                            );
-                            preferences.setInt(
-                              "color",
-                              task.color!,
-                            );
-                            preferences.setString(
-                              "description",
-                              task.description.toString(),
-                            );
-                            preferences.setString("date", task.date.toString());
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(
