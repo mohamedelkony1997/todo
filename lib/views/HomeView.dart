@@ -34,8 +34,9 @@ class _HomeViewState extends State<HomeView> {
   };
   @override
   void initState() {
-    Noti.initialize(flutterLocalNotificationsPlugin);
+   
     // TODO: implement initState
+
     super.initState();
   }
 
@@ -62,11 +63,6 @@ class _HomeViewState extends State<HomeView> {
         child: IconButton(
           icon: Icon(Icons.add, size: 35, color: Colors.white),
           onPressed: () {
-            Noti.showBigTextNotification(
-                title: "Elkony",
-                scheduledDate: DateTime.now(),
-                body: "hello testnotification",
-                fln: flutterLocalNotificationsPlugin);
             updateMode = false;
             (updateMode == false)
                 ? _scaffoldKey.currentState!.openEndDrawer()
@@ -123,7 +119,7 @@ class _HomeViewState extends State<HomeView> {
                       itemCount: taskController.tasks.length,
                       itemBuilder: (context, index) {
                         final task = taskController.tasks[index];
-                        taskController.scheduleNotification(task);
+                        taskController.pushNotification(task);
                         Color color = Color(task.color!);
                         return InkWell(
                           onTap: () async {

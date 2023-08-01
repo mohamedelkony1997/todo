@@ -1,7 +1,11 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
@@ -12,14 +16,23 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 class TaskController extends GetxController {
+  Timer? notificationTimer;
   final tasks = <Task>[].obs;
   @override
   void onInit() async {
     super.onInit();
-    Noti.initialize(flutterLocalNotificationsPlugin);
+
     final box = await Hive.openBox('TODO');
     tasks.assignAll(box.values.map((e) => e as Task).toList());
-    scheduleNotifications();
+    startContinuousExecution();
+  }
+
+  void startContinuousExecution() {
+    // Start a timer that executes pushNotification every second
+    notificationTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      // Execute your function here
+      scheduleNotifications();
+    });
   }
 
   void addTask(Task task) async {
@@ -27,7 +40,7 @@ class TaskController extends GetxController {
     String id = Uuid().v4();
     await box.put(id, task);
     tasks.add(task.copyWith(id: id));
-    scheduleNotification(task.copyWith(id: id));
+    pushNotification(task.copyWith(id: id));
   }
 
   void deleteTask(Task task, int index) async {
@@ -45,7 +58,7 @@ class TaskController extends GetxController {
   void updateTask(Task task) async {
     final box = await Hive.openBox('TODO');
     final index = tasks.indexWhere((t) => t.id == task.id);
-    final taskToUpdate = await box.get(task.id);
+    final taskToUpdate = tasks.firstWhere((t) => t.id == task.id);
     if (taskToUpdate != null) {
       final updatedTask = taskToUpdate.copyWith(
         title: task.title,
@@ -55,7 +68,7 @@ class TaskController extends GetxController {
         id: task.id,
         date: task.date,
       );
-      await box.put(task.id, updatedTask);
+      await box.put(task, updatedTask);
       tasks[index] = updatedTask;
       update();
     }
@@ -65,34 +78,32 @@ class TaskController extends GetxController {
     final box = await Hive.openBox('TODO');
     final tasks = box.values.map((e) => e as Task).toList();
     for (final task in tasks) {
-      await scheduleNotification(task);
+      await pushNotification(task);
     }
   }
 
-  Future<void> scheduleNotification(Task task) async {
-    int now = DateTime.now() as int;
-    print("now$now");
-    final dueDateTime =
-        DateTime.parse(task.date.toString() + " " + task.time.toString());
-          print("now$dueDateTime");
-    final notificationDateTime =
-        dueDateTime.subtract(Duration(minutes: int.parse("${task.time}")));
-          print("now$notificationDateTime");
-
-    if (dueDateTime == null ||
-        dueDateTime.isBefore(now as DateTime) ||
-        notificationDateTime.isBefore(now as DateTime)) {
-      // Task is overdue or has no due date/time, or notification time is already passed, don't schedule a notification
-      return;
-    }
-
-    await Noti.showBigTextNotification(
-      id: task.id,
-      title: "${task.title}",
-      body: "${task.description}",
-      scheduledDate: notificationDateTime,
-      fln: flutterLocalNotificationsPlugin,
+  Future<void> pushNotification(Task task) async {
+    final scheduledDate =
+        DateFormat('MM-dd-yyyy hh:mm a').parse('${task.date} ${task.time}');
+    var now = DateTime.now();
+    final currentDate = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+      0,
     );
+   
+    if (currentDate.isAtSameMomentAs(scheduledDate)) {
+      await Noti.showBigTextNotification(
+        id: task.id,
+        title: "${task.title}",
+        body: "${task.description}",
+        scheduledDate: scheduledDate,
+        fln: flutterLocalNotificationsPlugin,
+      );
+    }
   }
 
   void cancelNotification(Task task) {
@@ -104,6 +115,7 @@ class TaskController extends GetxController {
   void onClose() async {
     final box = await Hive.openBox('TODO');
     box.close();
+    notificationTimer?.cancel();
     super.onClose();
   }
 

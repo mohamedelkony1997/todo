@@ -10,11 +10,12 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:todo/views/LoginView.dart';
-
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 import 'Models/HomeController.dart';
 import 'notification/NotificationService.dart';
 
-
+import 'package:permission_handler/permission_handler.dart';
 bool updateMode = false;
   final TaskController taskController = Get.put(TaskController());
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -22,7 +23,12 @@ FlutterLocalNotificationsPlugin();
 void main() async {
   runApp(MyApp());
   WidgetsFlutterBinding.ensureInitialized();
-
+   await Permission.notification.isDenied.then((value) {
+        if (value) {
+          Permission.notification.request();
+        }
+      });
+    tz.initializeTimeZones();
   final appDocDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocDir.path);
   Hive.registerAdapter(TaskAdapter());

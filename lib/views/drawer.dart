@@ -347,6 +347,7 @@ class _MySideMenuState extends State<MySideMenu> {
                               title: taskName.text,
                               date: dateinput.text,
                               time: Timeinputfrom.text));
+                              
                           Navigator.of(context).pop();
                         },
                         child: Padding(
