@@ -3,51 +3,22 @@ import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../main.dart';
+import '../notification/NotificationService.dart';
 import 'TaskModel.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-Future<void> initializeNotifications() async {
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-  final InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: IOSInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
-      ));
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-  // Request permission for local notifications on Android
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.requestPermission();
-
-  // Request permission for local notifications on iOS
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin>()
-      ?.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-}
 
 class TaskController extends GetxController {
   final tasks = <Task>[].obs;
   @override
   void onInit() async {
     super.onInit();
+    Noti.initialize(flutterLocalNotificationsPlugin);
     final box = await Hive.openBox('TODO');
     tasks.assignAll(box.values.map((e) => e as Task).toList());
-    initializeNotifications();
-    // Schedule notifications for all tasks when the app starts
     scheduleNotifications();
   }
 
@@ -90,41 +61,37 @@ class TaskController extends GetxController {
     }
   }
 
-  void scheduleNotifications() {
+  Future<void> scheduleNotifications() async {
+    final box = await Hive.openBox('TODO');
+    final tasks = box.values.map((e) => e as Task).toList();
     for (final task in tasks) {
-      scheduleNotification(task);
+      await scheduleNotification(task);
     }
   }
 
-  void scheduleNotification(Task task) {
-    final now = DateTime.now();
-    final dueDate = DateTime.parse(task.date.toString());
-    ;
+  Future<void> scheduleNotification(Task task) async {
+    int now = DateTime.now() as int;
+    print("now$now");
+    final dueDateTime =
+        DateTime.parse(task.date.toString() + " " + task.time.toString());
+          print("now$dueDateTime");
+    final notificationDateTime =
+        dueDateTime.subtract(Duration(minutes: int.parse("${task.time}")));
+          print("now$notificationDateTime");
 
-    if (dueDate == null || dueDate.isBefore(now)) {
-      // Task is overdue or has no due date, don't schedule a notification
+    if (dueDateTime == null ||
+        dueDateTime.isBefore(now as DateTime) ||
+        notificationDateTime.isBefore(now as DateTime)) {
+      // Task is overdue or has no due date/time, or notification time is already passed, don't schedule a notification
       return;
     }
 
-    final androidDetails = AndroidNotificationDetails(
-      'channel_id',
-      'channel_name',
-    );
-
-    final platformDetails = NotificationDetails(
-      android: androidDetails,
-    );
-    final scheduledDate = tz.TZDateTime.from(dueDate, tz.local);
-
-    flutterLocalNotificationsPlugin.zonedSchedule(
-      task.id.hashCode,
-      'Task Reminder',
-      'You have a task to do: ${task.title}',
-      scheduledDate,
-      platformDetails,
-      androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
+    await Noti.showBigTextNotification(
+      id: task.id,
+      title: "${task.title}",
+      body: "${task.description}",
+      scheduledDate: notificationDateTime,
+      fln: flutterLocalNotificationsPlugin,
     );
   }
 

@@ -12,18 +12,21 @@ import 'package:path_provider/path_provider.dart';
 import 'package:todo/views/LoginView.dart';
 
 import 'Models/HomeController.dart';
+import 'notification/NotificationService.dart';
+
 
 bool updateMode = false;
-
+  final TaskController taskController = Get.put(TaskController());
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
 void main() async {
   runApp(MyApp());
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   final appDocDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocDir.path);
   Hive.registerAdapter(TaskAdapter());
-  await initializeNotifications();
-
+     Noti.initialize(flutterLocalNotificationsPlugin);
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 }

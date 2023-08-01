@@ -8,7 +8,9 @@ import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/Models/HomeController.dart';
 import 'package:todo/Models/TaskModel.dart';
+import 'package:todo/notification/NotificationService.dart';
 import '../main.dart';
+
 import 'drawer.dart';
 
 class HomeView extends StatefulWidget {
@@ -22,7 +24,7 @@ class _HomeViewState extends State<HomeView> {
   final TaskController taskController = Get.put(TaskController());
 
   Map data = {
-    "index":0,
+    "index": 0,
     "id": '',
     "title": '',
     "time": "",
@@ -30,9 +32,16 @@ class _HomeViewState extends State<HomeView> {
     "description": '',
     "color": 0
   };
+  @override
+  void initState() {
+    Noti.initialize(flutterLocalNotificationsPlugin);
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    print(DateTime.now());
     return SafeArea(
         child: Scaffold(
       resizeToAvoidBottomInset: false,
@@ -53,6 +62,11 @@ class _HomeViewState extends State<HomeView> {
         child: IconButton(
           icon: Icon(Icons.add, size: 35, color: Colors.white),
           onPressed: () {
+            Noti.showBigTextNotification(
+                title: "Elkony",
+                scheduledDate: DateTime.now(),
+                body: "hello testnotification",
+                fln: flutterLocalNotificationsPlugin);
             updateMode = false;
             (updateMode == false)
                 ? _scaffoldKey.currentState!.openEndDrawer()
@@ -109,6 +123,7 @@ class _HomeViewState extends State<HomeView> {
                       itemCount: taskController.tasks.length,
                       itemBuilder: (context, index) {
                         final task = taskController.tasks[index];
+                        taskController.scheduleNotification(task);
                         Color color = Color(task.color!);
                         return InkWell(
                           onTap: () async {
