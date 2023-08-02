@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:get/get_navigation/src/root/internacionalization.dart';
 class myLocal implements Translations{
   @override

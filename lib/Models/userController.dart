@@ -27,6 +27,7 @@ class UserController {
     if (response.statusCode == 302) {
       // If the response is a redirect, follow the redirect and try again
       final redirectUrl = response.headers['location'];
+      // ignore: unused_local_variable
       final redirectResponse = await http.post(
         Uri.parse(redirectUrl!),
         body: {
