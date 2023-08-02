@@ -22,13 +22,14 @@ class TaskController extends GetxController {
     super.onInit();
 
     final box = await Hive.openBox('TODO');
+    
     tasks.assignAll(box.values.map((e) => e as Task).toList());
     startContinuousExecution();
   }
 
   void startContinuousExecution() {
- 
-    notificationTimer = Timer.periodic(Duration(minutes: 1), (timer) {
+   _sortTasksByDateDesc();
+    notificationTimer = Timer.periodic(Duration(seconds:20), (timer) {
   
       scheduleNotifications();
     });
@@ -40,6 +41,7 @@ class TaskController extends GetxController {
   final newTask = task.copyWith(id: id); 
   await box.put(id, newTask);
   tasks.add(newTask); 
+  _sortTasksByDateDesc(); 
   pushNotification(newTask);
 }
 
@@ -132,7 +134,14 @@ class TaskController extends GetxController {
           radius: 30);
     }
   }
-
+  void _sortTasksByDateDesc() {
+  tasks.sort((a, b) {
+    return b.date!.compareTo(a.date!);
+  });
+}
+ void sortTasksByDateDesc() {
+    tasks.sort((a, b) => b.date!.compareTo(a.date!));
+  }
   void cancelNotification(Task task) {
   
     flutterLocalNotificationsPlugin.cancel(task.id.hashCode);

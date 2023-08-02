@@ -17,37 +17,36 @@ import 'Models/userController.dart';
 import 'notification/NotificationService.dart';
 
 import 'package:permission_handler/permission_handler.dart';
-bool updateMode = false;
-  final TaskController taskController = Get.put(TaskController());
-   final UserController _userController = Get.put(UserController());
 
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+bool updateMode = false;
+final TaskController taskController = Get.put(TaskController());
+final UserController _userController = Get.put(UserController());
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 void main() async {
   runApp(MyApp());
   WidgetsFlutterBinding.ensureInitialized();
-   await Permission.notification.isDenied.then((value) {
-        if (value) {
-          Permission.notification.request();
-        }
-      });
+  await Permission.notification.isDenied.then((value) {
+    if (value) {
+      Permission.notification.request();
+    }
+  });
 
-    await _userController.refreshToken();
   final appDocDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocDir.path);
   Hive.registerAdapter(TaskAdapter());
-     Noti.initialize(flutterLocalNotificationsPlugin);
+  Noti.initialize(flutterLocalNotificationsPlugin);
+ await _userController.refreshToken();
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 }
 
 class MyApp extends StatelessWidget {
-
- 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: hasToken(), 
+      future: hasToken(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return GetMaterialApp(
@@ -70,8 +69,8 @@ class MyApp extends StatelessWidget {
             initialRoute: snapshot.data == true ? '/home' : '/login',
             defaultTransition: Transition.fadeIn,
             getPages: [
-              GetPage(name: '/login', page: () => LoginView()), 
-              GetPage(name: '/home', page: () => HomeView()), 
+              GetPage(name: '/login', page: () => LoginView()),
+              GetPage(name: '/home', page: () => HomeView()),
             ],
           );
         } else {
@@ -82,8 +81,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 Future<bool> hasToken() async {
   final prefs = await SharedPreferences.getInstance();
+
   return prefs.getString('token') != null;
 }

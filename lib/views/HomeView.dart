@@ -22,6 +22,7 @@ class _HomeViewState extends State<HomeView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final TaskController taskController = Get.put(TaskController());
+  final taskController2 = Get.find<TaskController>();
 
   Map data = {
     "index": 0,
@@ -34,7 +35,6 @@ class _HomeViewState extends State<HomeView> {
   };
   @override
   void initState() {
-   
     // TODO: implement initState
 
     super.initState();
@@ -88,10 +88,13 @@ class _HomeViewState extends State<HomeView> {
           children: <Widget>[
             Row(
               children: [
+                IconButton(
+                    onPressed: () async {
+                      taskController2.sortTasksByDateDesc();
+                    },
+                    icon: Icon(Icons.filter_list_sharp),
+                    iconSize: 35),
                 Spacer(),
-                SizedBox(
-                  width: 20,
-                ),
                 Text(
                   "TODO",
                   style: GoogleFonts.cairo(
@@ -117,9 +120,10 @@ class _HomeViewState extends State<HomeView> {
                 height: MediaQuery.sizeOf(context).height / 1.35,
                 child: Obx(() => ListView.builder(
                       itemCount: taskController.tasks.length,
+                    
                       itemBuilder: (context, index) {
                         final task = taskController.tasks[index];
-                        taskController.pushNotification(task);
+                      
                         Color color = Color(task.color!);
                         return InkWell(
                           onTap: () async {
@@ -141,7 +145,6 @@ class _HomeViewState extends State<HomeView> {
                           child: Card(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                         
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
