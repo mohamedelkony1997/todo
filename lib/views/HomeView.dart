@@ -141,7 +141,7 @@ class _HomeViewState extends State<HomeView> {
                           child: Card(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              //set border radius more than 50% of height and width to make circle
+                         
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(16),

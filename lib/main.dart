@@ -13,11 +13,14 @@ import 'package:todo/views/LoginView.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'Models/HomeController.dart';
+import 'Models/userController.dart';
 import 'notification/NotificationService.dart';
 
 import 'package:permission_handler/permission_handler.dart';
 bool updateMode = false;
   final TaskController taskController = Get.put(TaskController());
+   final UserController _userController = Get.put(UserController());
+
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
 void main() async {
@@ -28,7 +31,8 @@ void main() async {
           Permission.notification.request();
         }
       });
-    tz.initializeTimeZones();
+
+    await _userController.refreshToken();
   final appDocDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocDir.path);
   Hive.registerAdapter(TaskAdapter());
@@ -38,11 +42,12 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+
+ 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: hasToken(), // Check if the user has a token
+      future: hasToken(), 
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return GetMaterialApp(
@@ -65,8 +70,8 @@ class MyApp extends StatelessWidget {
             initialRoute: snapshot.data == true ? '/home' : '/login',
             defaultTransition: Transition.fadeIn,
             getPages: [
-              GetPage(name: '/login', page: () => LoginView()), // Login Screen
-              GetPage(name: '/home', page: () => HomeView()), // Home Screen
+              GetPage(name: '/login', page: () => LoginView()), 
+              GetPage(name: '/home', page: () => HomeView()), 
             ],
           );
         } else {
@@ -77,7 +82,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Function to check if the user has a token
+
 Future<bool> hasToken() async {
   final prefs = await SharedPreferences.getInstance();
   return prefs.getString('token') != null;

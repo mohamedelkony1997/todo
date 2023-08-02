@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,8 +13,6 @@ import '../main.dart';
 import '../notification/NotificationService.dart';
 import 'TaskModel.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 class TaskController extends GetxController {
   Timer? notificationTimer;
@@ -28,20 +27,21 @@ class TaskController extends GetxController {
   }
 
   void startContinuousExecution() {
-    // Start a timer that executes pushNotification every second
-    notificationTimer = Timer.periodic(Duration(seconds: 1), (timer) {
-      // Execute your function here
+ 
+    notificationTimer = Timer.periodic(Duration(minutes: 1), (timer) {
+  
       scheduleNotifications();
     });
   }
 
-  void addTask(Task task) async {
-    final box = await Hive.openBox('TODO');
-    String id = Uuid().v4();
-    await box.put(id, task);
-    tasks.add(task.copyWith(id: id));
-    pushNotification(task.copyWith(id: id));
-  }
+ void addTask(Task task) async {
+  final box = await Hive.openBox('TODO');
+  String id = Uuid().v4();
+  final newTask = task.copyWith(id: id); 
+  await box.put(id, newTask);
+  tasks.add(newTask); 
+  pushNotification(newTask);
+}
 
   void deleteTask(Task task, int index) async {
     final box = await Hive.openBox('TODO');
@@ -68,7 +68,7 @@ class TaskController extends GetxController {
         id: task.id,
         date: task.date,
       );
-      await box.put(task, updatedTask);
+      await box.put(task.id, updatedTask); 
       tasks[index] = updatedTask;
       update();
     }
@@ -94,7 +94,7 @@ class TaskController extends GetxController {
       now.minute,
       0,
     );
-   
+
     if (currentDate.isAtSameMomentAs(scheduledDate)) {
       await Noti.showBigTextNotification(
         id: task.id,
@@ -103,11 +103,38 @@ class TaskController extends GetxController {
         scheduledDate: scheduledDate,
         fln: flutterLocalNotificationsPlugin,
       );
+      Get.defaultDialog(
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+
+            Text("${task.title}",style: GoogleFonts.cairo(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 28,
+                  ),),
+                  SizedBox(height: 15,),
+                  Image.asset("assets/logo.png",
+                  height: 50,
+                  width: 50,
+                  ),
+                   SizedBox(height: 15,),
+                     Text("${task.description}",style: GoogleFonts.cairo(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 18,
+                  ),),
+
+          ]),
+          backgroundColor: Color(0xfffff2e4),
+          titleStyle: TextStyle(color: Colors.black),
+          middleTextStyle: TextStyle(color: Colors.black),
+          radius: 30);
     }
   }
 
   void cancelNotification(Task task) {
-    // Cancel any scheduled notifications for the given task
+  
     flutterLocalNotificationsPlugin.cancel(task.id.hashCode);
   }
 
@@ -123,7 +150,7 @@ class TaskController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
 
-    // Navigate to the login page
+   
     Get.offNamed('/login');
   }
 }
