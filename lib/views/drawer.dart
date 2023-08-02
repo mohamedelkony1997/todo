@@ -59,7 +59,7 @@ class _MySideMenuState extends State<MySideMenu> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.index);
+
     return Drawer(
       backgroundColor: Color(0xfff8fbfe),
       child: Padding(
@@ -425,7 +425,7 @@ class _MySideMenuState extends State<MySideMenu> {
                                       date: widget.date,
                                       description: widget.descrip),
                                   widget.index);
-                              print("widget.id");
+                         
                               Navigator.of(context).pop();
                             },
                             child: Padding(

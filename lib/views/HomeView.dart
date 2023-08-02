@@ -36,7 +36,7 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    print(DateTime.now());
+    
     return SafeArea(
         child: Scaffold(
       resizeToAvoidBottomInset: false,
@@ -121,7 +121,7 @@ class _HomeViewState extends State<HomeView> {
                         Color color = Color(task.color!);
                         return InkWell(
                           onTap: () async {
-                            print(task.id);
+                       
                             setState(() {
                               data['title'] = task.title;
                               data['id'] = task.id;

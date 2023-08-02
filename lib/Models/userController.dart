@@ -22,12 +22,19 @@ class UserController {
       },
     );
 
-    print(response.statusCode);
+  
 
     if (response.statusCode == 302) {
-      // If the response is a redirect, follow the redirect and try again
+      Fluttertoast.showToast(
+          msg: "An error occurred. Please try again later.'",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
       final redirectUrl = response.headers['location'];
-      // ignore: unused_local_variable
+
       final redirectResponse = await http.post(
         Uri.parse(redirectUrl!),
         body: {
@@ -35,18 +42,12 @@ class UserController {
           "password": user.password,
         },
       );
-      // Handle the response from the redirected URL
-      // ...
     } else if (response.statusCode == 200) {
-      // If the response status code is 200, parse the response as JSON
       var extractedlogin = json.decode(response.body);
       SharedPreferences preferences = await SharedPreferences.getInstance();
       preferences.setString("token", extractedlogin["data"]["token"]);
       Get.to(HomeView());
-      print(extractedlogin);
-      // ...
     } else if (response.statusCode == 400) {
-      // If the response status code is 400, handle the error
       var extractedlogin = json.decode(response.body);
       Fluttertoast.showToast(
           msg: "${extractedlogin["message"]}",
@@ -56,11 +57,10 @@ class UserController {
           backgroundColor: Colors.black,
           textColor: Colors.white,
           fontSize: 16.0);
-      print('Login failed: ${extractedlogin["message"]}');
+    
     } else {
-      // If the response status code is not 200 or 400, handle the error
       Fluttertoast.showToast(
-          msg: "An error occurred. Please try again later.'",
+          msg: "An error occurred. Please try again later.",
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
@@ -80,14 +80,20 @@ class UserController {
         'Authorization': 'Bearer $token',
       },
     );
-    print(response.statusCode);
+
     var extractedToken = json.decode(response.body);
-    print(extractedToken);
+
     if (response.statusCode == 200) {
       preferences.setString('token', extractedToken['data']['token']);
-      print('Token refreshed: ${extractedToken['data']['token']}');
     } else {
-      print('Token refresh failed');
+      Fluttertoast.showToast(
+          msg: "An error occurred. Please try again later.'",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
     }
   }
 }

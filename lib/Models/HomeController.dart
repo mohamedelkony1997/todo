@@ -51,7 +51,7 @@ class TaskController extends GetxController {
     final box = await Hive.openBox('TODO');
     final taskToDelete = tasks.firstWhere((t) => t.id == task.id);
     if (taskToDelete.id.length > 0) {
-      print("deleted${taskToDelete.id}");
+    
       await box.deleteAt(index);
       cancelNotification(task);
       tasks.remove(taskToDelete);
